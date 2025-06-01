@@ -6,9 +6,15 @@ import posts from './routes/posts.js';
 import users from './routes/users.js';
 
 const PORT = process.env.PORT || 5050;
+const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: allowedOrigin,
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // Load the /posts routes
