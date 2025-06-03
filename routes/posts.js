@@ -1,23 +1,35 @@
 import express from 'express';
-import db from '../db/conn.js';
+import { connectToDatabase } from '../db/conn.js';
 import { ObjectId } from 'mongodb';
 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-  let collection = await db.collection('comments');
-  let results = await collection.find({}).limit(50).toArray();
-  console.log(results);
-  res.send(results).status(200);
+  try {
+    const db = await connectToDatabase();
+    const collection = db.collection('comments');
+    const results = await collection.find({}).limit(50).toArray();
+    res.status(200).json(results);
+  } catch (e) {
+    console.error(e);
+    res.status(500).send('Failed to fetch comments');
+  }
 });
 
-// Add a new document to the collection
 router.post('/', async (req, res) => {
-  let collection = await db.collection('comments');
-  let newDocument = req.body;
-  newDocument.date = new Date();
-  let result = await collection.insertOne(newDocument);
-  res.send(result).status(204);
+  try {
+    const db = await connectToDatabase();
+    const collection = db.collection('comments');
+    const newDocument = {
+      ...req.body,
+      date: new Date(),
+    };
+    const result = await collection.insertOne(newDocument);
+    res.status(201).json(result);
+  } catch (e) {
+    console.error(e);
+    res.status(500).send('Failed to post comment');
+  }
 });
 
 export default router;
