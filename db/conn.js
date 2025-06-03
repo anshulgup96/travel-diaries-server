@@ -4,10 +4,9 @@ const uri = process.env.ATLAS_URI;
 const dbName = process.env.DB_NAME || 'sample_mflix';
 
 if (!uri) {
-  throw new Error('Missing ATLAS_URI in environment variables');
+  throw new Error('Missing ATLAS_URI');
 }
 
-let cachedClient = null;
 let cachedDb = null;
 
 export async function connectToDatabase() {
@@ -16,13 +15,13 @@ export async function connectToDatabase() {
   const client = new MongoClient(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    ssl: true,
+    tls: true,
+    tlsAllowInvalidCertificates: false,
   });
 
   await client.connect();
   const db = client.db(dbName);
-
-  cachedClient = client;
   cachedDb = db;
-
   return db;
 }
